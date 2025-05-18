@@ -2,11 +2,11 @@
 
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import { getUser } from "./data"
 
 // 認証セッションを取得する関数
 export async function auth() {
-  // 実際の実装ではGoogle認証などを使用します
-  // ここではモックデータを返します
+  // クッキーからセッションIDを取得
   const cookieStore = cookies()
   const sessionCookie = cookieStore.get("session")
 
@@ -14,14 +14,26 @@ export async function auth() {
     return null
   }
 
-  // モックユーザーデータ
-  return {
-    user: {
-      id: "user_123",
-      name: "山田太郎",
-      email: "yamada@example.com",
-      image: "/placeholder.svg?height=32&width=32&text=YT",
-    },
+  try {
+    // 実際の実装ではセッションIDからユーザー情報を取得する
+    // ここではモックユーザーデータを返す
+    const user = await getUser(1) // 山田太郎のユーザーID
+
+    if (!user) {
+      return null
+    }
+
+    return {
+      user: {
+        id: user.user_id.toString(),
+        name: user.username,
+        email: user.email,
+        image: `/placeholder.svg?height=32&width=32&text=${user.username.substring(0, 2)}`,
+      },
+    }
+  } catch (error) {
+    console.error("認証エラー:", error)
+    return null
   }
 }
 
